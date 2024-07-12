@@ -1,0 +1,5 @@
+1.npm i bcrypt
+2.const bcrypt = require('bcrypt');
+3.    const salt=await bcrypt.genSalt(10)
+ 4.   const hashPassword=await bcrypt.hash(req.body.password)
+ 5.res.send(hashPassword)
