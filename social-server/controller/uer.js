@@ -1,7 +1,8 @@
 const bcrypt = require("bcrypt");
 const User = require("../model/user");
 //update
-const update = async (req, res) => {
+const updates = async (req, res) => {
+
   if (req.body.userId === req.params.id || req.body.isAdmin) {
     if (req.body.password) {
         //sove password issu
@@ -13,21 +14,23 @@ const update = async (req, res) => {
       }
     }
 
-
 //user find for updata
 try{
-    const user=await User.findByIdAndUpdate(req.params.id,{
-        $set: req.body
-    })
-    res.status(200).json("ACCOUNT HASVWE PDADE")
+  const user=await User.findByIdAndUpdate(req.params.id,{
+      $set: req.body
+  })
+console.log(user)
+  res.status(200).json("UPDATED")
+  //res.status(200).json("ACCOUNT HASVWE PDADE")
 }catch(err){
-    return res.status(500).json(err);
+  return res.status(500).json(err);
 }
+
 
   } else {
     return res.status(403).json("you can update at account onley"); //403 Forbidden: অনুমতি প্রদান করা হয়নি, অ্যাক্সেস নিষিদ্ধ।
   }
 
-  res.send("I AM USER CONTROLLER");
+ // res.send("I AM USER CONTROLLER");
 };
-module.exports = update;
+module.exports = updates;

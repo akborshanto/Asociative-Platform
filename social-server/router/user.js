@@ -1,10 +1,11 @@
 const express=require('express');
-const update = require('../controller/uer');
+
+const updates = require('../controller/uer');
 
 
 const router=express.Router()
 
-router.put("/",update)
+router.put("/:id",updates)
 
 
 
