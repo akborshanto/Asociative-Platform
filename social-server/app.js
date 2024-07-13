@@ -13,7 +13,7 @@ app.use(cors())
 app.use(express.json())
 
 app.use('/auth',router)
-app.use('/update',userRouter)
+app.use('/user',userRouter)
 /* invalid route */
 
   
