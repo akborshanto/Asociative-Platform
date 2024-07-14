@@ -33,75 +33,108 @@ const updates = async (req, res) => {
 
 //delete
 const deleteUser = async (req, res) => {
-
   if (req.body.userId === req.params.id || req.body.isAdmin) {
     try {
-      const user = await User.findByIdAndDelete(req.params.id,{$set:req.body});
-console.log(user)
+      const user = await User.findByIdAndDelete(req.params.id, {
+        $set: req.body,
+      });
+      console.log(user);
       res.status(200).json("SUCCESS deleted");
     } catch (err) {
       //console.log(err);
-      return res.status(500).json(err)
+      return res.status(500).json(err);
     }
-  }else{
-
-
-    res.status(404).json("you can Delete at account ")
-  
+  } else {
+    res.status(404).json("you can Delete at account ");
   }
-  
-
-
-
-
-}
+};
 /* get singe user */
-const getSingleUser= async(req,res)=>{
-  console.log(req.params.id)
-try{
-/* get the data */
-const singleUser=await User.findById(req.params.id)
-//destructrue single data
-//_doc প্রপার্টি ব্যবহার করে, আমরা ডকুমেন্টের মূল ডেটা একটি প্লেইন জাভাস্ক্রিপ্ট অবজেক্ট হিসেবে অ্যাক্সেস করেছি এবং সেটি রেসপন্স হিসেবে পাঠিয়েছি।
-const {password,createdAt,...other}=singleUser._doc;
-console.log(other.email)
-res.status(200).json(other)
-
-}catch(err){
-
-  return res.status(404).json(err)
-}
-
-}
+const getSingleUser = async (req, res) => {
+  console.log(req.params.id);
+  try {
+    /* get the data */
+    const singleUser = await User.findById(req.params.id);
+    //destructrue single data
+    //_doc প্রপার্টি ব্যবহার করে, আমরা ডকুমেন্টের মূল ডেটা একটি প্লেইন জাভাস্ক্রিপ্ট অবজেক্ট হিসেবে অ্যাক্সেস করেছি এবং সেটি রেসপন্স হিসেবে পাঠিয়েছি।
+    const { password, createdAt, ...other } = singleUser._doc;
+    console.log(other.email);
+    res.status(200).json(other);
+  } catch (err) {
+    return res.status(404).json(err);
+  }
+};
 /* fololow a user */
-const follow =async (req,res)=>{
+const follow = async (req, res) => {
+  console.log(req.params.id);
+  if (req.params.userId !== req.params.id) {
+    try {
+      const user = await User.findById(req.params.id);
+   
+      const currentUser = await User.findById(req.params.userId);
 
-  if(req.params.userId !== req.params.id){
+      if (!user.followers.includes(req.body.userId)) {
+        await user.updateOne({ $push: { followers: req.body.userId } });
+        await currentUser.updateOne({ $push: { fololowing: req.params.id } });
+      }
+    } catch (err) {
+      res.status(403).json("Your alrady follow this user");
+    }
+  } else {
+    res.status(403).json("you cannot follow yourself");
+  }
+};
+
+
+const unFollow=async(req,res)=>{
+
+console.log(req.params.id)
+
+
+if(req.params.userId !==req.params.id){
+
 
 try{
 
 const user=await User.findById(req.params.id)
+const currentUser=User.findById(req.params.userId)
 
-const currentUser=await User.findById(req.params.userId)
+// চেক করা হচ্ছে, বর্তমান ইউজার ইতিমধ্যে ফলোয়ার লিস্টে আছে কিনা।
+// যদি না থাকে, তাহলে user.updateOne ব্যবহার করে ফলোয়ার লিস্টে বর্তমান ইউজারকে যোগ করা হচ্ছে
+if(!user.followers.includes(req.params.userId)){
 
-if(!user.followers.includes(req.body.userId)){
+//exising user id
+await user.updateOne({$pull:{followers: req.body.userId}})
+await currentUser.updateOne({$pull:{fololowing:req.params.id}})
+res.status(200).json("SUCCESF Fully fOllower")
+}else{
+res.status(404).json("you already follow this user")
 
-  await user.updateOne({$push:{followers:req.body.userId}})
-await User.updateOne({$pull:{follwings:req.params.id}})
 }
-
 
 
 
 
 }catch(err){
- res.status(403).json("Your alrady follow this user")
+
+
+
 }
 
-  }
-  
+
+
+
 }
+
+
+
+
+
+}
+
+
+
 
 module.exports = updates;
-module.exports=deleteUser;
-module.exports=follow;
+module.exports = deleteUser;
+module.exports = follow;
+module.exports = unFollow;
